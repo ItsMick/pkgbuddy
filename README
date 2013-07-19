@@ -18,4 +18,4 @@ Options:
                         Required
   -f, --forcedreciepts  Force reciepts to be created. This is achieved by
                         writing a file to /var/db/reciepts. This makes the
-                        package technically not a pkgbuddy package.
+                        package technically not a no payload package.
