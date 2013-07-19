@@ -60,7 +60,7 @@ def main():
     p.add_option('--packagename', '-p', default="", help="Define a output package name. ")
     p.add_option('--version', '-v', default="1.0", help="Set package version")
     p.add_option('--myorg', '-o', default="", help="Set Organzation name this is used as a prefix Not Required")
-    p.add_option('--forcedreciepts', '-f', action="store_true", default="", help="Force reciepts to be created. This is achieved by writing a file to /var/db/reciepts. This makes the package technically not a pkgbuddy package.")
+    p.add_option('--forcedreciepts', '-f', action="store_true", default="", help="Force reciepts to be created. This is achieved by writing a file to /var/db/reciepts. This makes the package technically not a no payload package.")
     options, arguments = p.parse_args()
 
     #Bail out if no script was passed or quit els
