@@ -2,21 +2,20 @@ pkgbuddy is a tool designed to assited with making flat nopayload packages. It h
 
 The only required option that needs to be passed is --script -s with the script you would like wrapped up in a pkg. 
 
-nopayload Usage: 
-Usage nopayload --script filename [--packagename value] [--version value] [--myorg value] [--forcedreciepts]
+Usage: 
+pkgbuddy --script filename [--packagename value] [--version value] [--myorg value] [--forcedreciepts]
 
 Options:
   -h, --help            show this help message and exit
   -s SCRIPT, --script=SCRIPT
                         Script you would like wrapped into a flat package.
-                        Required
   -p PACKAGENAME, --packagename=PACKAGENAME
-                        Define a output package name. Not Required
+                        Define a output package name.
   -v VERSION, --version=VERSION
-                        Set package version #Not Required
+                        Set package version
   -o MYORG, --myorg=MYORG
                         Set Organzation name this is used as a prefix Not
-                        Required ex. PretendCo
+                        Required
   -f, --forcedreciepts  Force reciepts to be created. This is achieved by
                         writing a file to /var/db/reciepts. This makes the
-                        package technically not a nopayload package.
+                        package technically not a pkgbuddy package.

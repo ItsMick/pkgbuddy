@@ -16,7 +16,7 @@
 # limitations under the License.
 """
 
-This tool assists with creating nopayload Packages with /usr/bin/pkgbuild.
+This tool assists with creating no payload packages with /usr/bin/pkgbuild.
 The only required variable is --script.
 
 TO DO:
@@ -51,7 +51,7 @@ import shutil
 import uuid
 import stat
 
-usage = "\nUsage nopayload --script filename [--packagename value] [--version value] [--myorg value] [--forcedreciepts]"
+usage = "\npkgbuddy --script filename [--packagename value] [--version value] [--myorg value] [--forcedreciepts]"
 
 
 def main():
@@ -60,12 +60,12 @@ def main():
     p.add_option('--packagename', '-p', default="", help="Define a output package name. ")
     p.add_option('--version', '-v', default="1.0", help="Set package version")
     p.add_option('--myorg', '-o', default="", help="Set Organzation name this is used as a prefix Not Required")
-    p.add_option('--forcedreciepts', '-f', action="store_true", default="", help="Force reciepts to be created. This is achieved by writing a file to /var/db/reciepts. This makes the package technically not a nopayload package.")
+    p.add_option('--forcedreciepts', '-f', action="store_true", default="", help="Force reciepts to be created. This is achieved by writing a file to /var/db/reciepts. This makes the package technically not a pkgbuddy package.")
     options, arguments = p.parse_args()
 
     #Bail out if no script was passed or quit els
     if not options.script:
-        p.error("Please read the help info. {nopayload -h}")
+        p.error("Please read the help info. {pkgbuddy -h}")
 
     # Get the scri[pt Vat set up     
     script = options.script.split("/")
