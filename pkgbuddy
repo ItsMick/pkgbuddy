@@ -1,0 +1,141 @@
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright 2013 Mick Zimmerman.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""
+
+This tool assists with creating nopayload Packages with /usr/bin/pkgbuild.
+The only required variable is --script.
+
+TO DO:
+
+
+-- Add a forced reciepts option to options
+-- Consider expanding funtionality for creation of metapkg's
+-- Dev ID add_option
+-- Added forced reciepts
+
+Chanage log:
+
+6/15/2013
+-updated options
+-changed the way packagename works
+-update help and usage
+
+6/14/2013
+-Moved the ./scripts folder creation to /tmp/{uuid}
+-Updated the logic when setting packagename if --packagename was not passed
+
+7/18/2013
+-changed name of project
+-decided cleaned up readme
+-cleaned up code a bit
+
+"""
+import optparse
+import os
+import subprocess
+import shutil
+import uuid
+import stat
+
+usage = "\nUsage nopayload --script filename [--packagename value] [--version value] [--myorg value] [--forcedreciepts]"
+
+
+def main():
+    p = optparse.OptionParser(usage=usage)
+    p.add_option('--script', '-s', default="", help="Script you would like wrapped into a flat package.")
+    p.add_option('--packagename', '-p', default="", help="Define a output package name. ")
+    p.add_option('--version', '-v', default="1.0", help="Set package version")
+    p.add_option('--myorg', '-o', default="", help="Set Organzation name this is used as a prefix Not Required")
+    p.add_option('--forcedreciepts', '-f', action="store_true", default="", help="Force reciepts to be created. This is achieved by writing a file to /var/db/reciepts. This makes the package technically not a nopayload package.")
+    options, arguments = p.parse_args()
+
+    #Bail out if no script was passed or quit els
+    if not options.script:
+        p.error("Please read the help info. {nopayload -h}")
+
+    # Get the scri[pt Vat set up     
+    script = options.script.split("/")
+    script = script[len(script) - 1]
+    script = script.split(".")[0]
+
+    #set tmp folder
+    tmp_folder = "/tmp/" + str(uuid.uuid4())
+    #set scripts folder
+    scripts_folder = tmp_folder + "/scripts"
+    # create tmp folder
+    mz_makedirs(tmp_folder)
+    #create scripts folder
+    mz_makedirs(scripts_folder)
+
+    # Copy and rename script into the newly created scripts folder.
+    postinstall = scripts_folder + "/postinstall"
+    shutil.copy2(options.script, postinstall)
+    #make the file excutable
+    postinstall_stats = os.stat(postinstall)
+    os.chmod(postinstall, postinstall_stats.st_mode | stat.S_IEXEC)
+
+
+    # set the packagname in the case that no package name was passed
+    if not options.packagename:
+        if not options.myorg:
+            packagename = script + "_" + options.version + ".pkg"
+        else:
+            packagename = options.myorg + "_" + script + "_" + options.version + ".pkg"
+    else:
+        # Lets avoid a .pkg.pkg situation 
+        check_packagename = options.packagename.split(".")
+        check_packagename = check_packagename[len(check_packagename) - 1]
+        # Set the package name here.
+        if (check_packagename != 'pkg') and (check_packagename != 'mpkg'):
+            packagename = options.packagename + ".pkg"
+        else:
+            packagename = options.packagename
+            
+
+    # Set identifier
+    if not options.myorg:
+        identifier = "com." + script + "." + options.version
+    else:
+        identifier = "com." + options.myorg + "." + script + "." + options.version
+
+    #Forced Reciepts
+    if not options.forcedreciepts:
+        pass
+    else:
+        root_folder = tmp_folder + "/root"
+        reciepts_folder = root_folder + "/var/db/reciepts"
+        mz_makedirs(reciepts_folder)
+
+    #set up the list for the subprocess.call()
+    if not options.forcedreciepts:
+        pkgbuild_args = ["/usr/bin/pkgbuild", "--nopayload", "--scripts", scripts_folder, "--version", options.version, "--identifier", identifier, packagename]
+    else:
+        pkgbuild_args = ["/usr/bin/pkgbuild", "--root", root_folder, "--scripts", scripts_folder, "--version", options.version, "--identifier", identifier, packagename]
+
+    #Run the arguments
+    subprocess.call(pkgbuild_args, stdin=None, stdout=None, stderr=None, shell=False)
+
+    #Clean up - Delete the temp folder that was created
+    shutil.rmtree(scripts_folder)
+
+def mz_makedirs(self):
+    """os.makedirs with logic"""
+    if not os.path.exists(self):
+        os.makedirs(self)
+
+if __name__ == '__main__':
+    main()
